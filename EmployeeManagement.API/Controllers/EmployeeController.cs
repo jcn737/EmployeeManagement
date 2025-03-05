@@ -78,7 +78,7 @@ namespace EmployeeManagement.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetEmployee(int id)
+        public async Task<IActionResult> GetEmployee(Guid id)
         {
             var authResult = await ValidateToken();
             if (authResult != null) return authResult;
@@ -145,7 +145,7 @@ namespace EmployeeManagement.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmployee(int id)
+        public async Task<IActionResult> DeleteEmployee(Guid id)
         {
             var authResult = await ValidateToken();
             if (authResult != null) return authResult;
