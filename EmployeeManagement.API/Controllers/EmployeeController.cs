@@ -16,7 +16,7 @@ namespace EmployeeManagement.API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IEmployeeRepository _employeeRepository;
-        private static readonly Logger Logger = LogManager.GetCurrentClassLogger(); // Inicializando o logger
+        private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
         public EmployeeController(IMediator mediator, IEmployeeRepository employeeRepository)
         {
@@ -24,14 +24,32 @@ namespace EmployeeManagement.API.Controllers
             _employeeRepository = employeeRepository;
         }
 
+        private async Task<IActionResult> ValidateToken()
+        {
+            if (!Request.Headers.TryGetValue("Authorization", out var token))
+            {
+                return Unauthorized("Token is missing.");
+            }
+
+            var principal = await _mediator.Send(new ValidateTokenRequest { Token = token.ToString().Replace("Bearer ", "") });
+            if (principal == null)
+            {
+                return Unauthorized("Invalid token.");
+            }
+
+            return null;
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateEmployee([FromBody] CreateEmployeeCommand command)
         {
+            var authResult = await ValidateToken();
+            if (authResult != null) return authResult;
+
             try
             {
                 var result = await _mediator.Send(command);
                 Logger.Info($"Employee created successfully with ID: {result.Id}");
-
                 return CreatedAtAction(nameof(CreateEmployee), new { id = result.Id }, result);
             }
             catch (Exception ex)
@@ -42,14 +60,14 @@ namespace EmployeeManagement.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employees>>> GetEmployees()
+        public async Task<IActionResult> GetEmployees()
         {
+            var authResult = await ValidateToken();
+            if (authResult != null) return authResult;
+
             try
             {
-                Logger.Info("Fetching all employees");
-
                 var employees = await _employeeRepository.GetAllAsync();
-
                 return Ok(employees);
             }
             catch (Exception ex)
@@ -60,19 +78,20 @@ namespace EmployeeManagement.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employees>> GetEmployee(int id)
+        public async Task<IActionResult> GetEmployee(int id)
         {
+            var authResult = await ValidateToken();
+            if (authResult != null) return authResult;
+
             try
             {
-                var funcionario = await _employeeRepository.GetByIdAsync(id);
-
-                if (funcionario == null)
+                var employee = await _employeeRepository.GetByIdAsync(id);
+                if (employee == null)
                 {
                     Logger.Warn($"Employee with ID {id} not found");
                     return NotFound();
                 }
-
-                return Ok(funcionario);
+                return Ok(employee);
             }
             catch (Exception ex)
             {
@@ -81,14 +100,16 @@ namespace EmployeeManagement.API.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Employees>> PostEmployee(Employees employees)
+        [HttpPost("add")]
+        public async Task<IActionResult> PostEmployee(Employees employees)
         {
+            var authResult = await ValidateToken();
+            if (authResult != null) return authResult;
+
             try
             {
                 await _employeeRepository.AddAsync(employees);
                 Logger.Info($"Employee {employees.FirstName} {employees.LastName} added successfully");
-
                 return CreatedAtAction(nameof(GetEmployee), new { id = employees.Id }, employees);
             }
             catch (Exception ex)
@@ -101,6 +122,9 @@ namespace EmployeeManagement.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutEmployee(Guid id, Employees employees)
         {
+            var authResult = await ValidateToken();
+            if (authResult != null) return authResult;
+
             try
             {
                 if (id != employees.Id)
@@ -111,7 +135,6 @@ namespace EmployeeManagement.API.Controllers
 
                 await _employeeRepository.UpdateAsync(employees);
                 Logger.Info($"Employee with ID {id} updated successfully");
-
                 return NoContent();
             }
             catch (Exception ex)
@@ -124,11 +147,13 @@ namespace EmployeeManagement.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmployee(int id)
         {
+            var authResult = await ValidateToken();
+            if (authResult != null) return authResult;
+
             try
             {
                 await _employeeRepository.DeleteAsync(id);
                 Logger.Info($"Employee with ID {id} deleted successfully");
-
                 return NoContent();
             }
             catch (Exception ex)

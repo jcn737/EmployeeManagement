@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulário de Dados</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 80%;
+      margin: 50px auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 12px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .pagination a {
+      text-decoration: none;
+      color: #3498db;
+      padding: 10px 15px;
+      margin: 0 5px;
+      border: 1px solid #3498db;
+      border-radius: 4px;
+    }
+
+    .pagination a:hover {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .pagination a.active {
+      background-color: #2980b9;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+ <!-- app.component.html -->
+<div class="container">
+    <h1>Preencha os Dados</h1>
+  
+    <form id="employeeForm" (ngSubmit)="onSubmit()">
+      <label for="firstName">Nome:</label>
+      <input type="text" id="firstName" name="firstName" [(ngModel)]="newEmployee.firstName" placeholder="Digite o nome completo" required>
+  
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" [(ngModel)]="newEmployee.email" placeholder="Digite o email" required>
+  
+      <label for="document">Documento:</label>
+      <input type="text" id="document" name="document" [(ngModel)]="newEmployee.document" placeholder="Digite o número do documento" required>
+  
+      <label for="phones">Telefones:</label>
+      <input type="text" id="phones" name="phones" [(ngModel)]="newEmployee.phones" placeholder="Digite os telefones" required>
+  
+      <label for="birthDate">Data de Nascimento:</label>
+      <input type="date" id="birthDate" name="birthDate" [(ngModel)]="newEmployee.birthDate" required>
+  
+      <label for="manager">Gerente:</label>
+      <select id="manager" name="manager" [(ngModel)]="newEmployee.managerId">
+        <option value="">Selecione</option>
+        <option value="1">Gerente 1</option>
+        <option value="2">Gerente 2</option>
+        <option value="3">Gerente 3</option>
+      </select>
+  
+      <button type="submit">Salvar Dados</button>
+    </form>
+  
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Documento</th>
+          <th>Telefones</th>
+          <th>Data de Nascimento</th>
+          <th>Gerente</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let employee of employees">
+          <td>{{ employee.firstName }} {{ employee.lastName }}</td>
+          <td>{{ employee.email }}</td>
+          <td>{{ employee.document }}</td>
+          <td>{{ employee.phones.join(', ') }}</td>
+          <td>{{ employee.birthDate | date:'dd/MM/yyyy' }}</td>
+          <td>{{ employee.managerId ? 'Gerente ' + employee.managerId : 'Nenhum' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div class="pagination">
+      <a href="#" class="active">1</a>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <a href="#">Próximo</a>
+    </div>
+  </div> 
+</body>
+</html>
+
